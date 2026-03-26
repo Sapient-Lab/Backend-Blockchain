@@ -1,0 +1,118 @@
+╔══════════════════════════════════════════════════════════════╗
+║        🚀 INICIO RÁPIDO - PINATA CON NESTJS 🚀              ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 PASO 1: CONFIGURAR CREDENCIALES
+═══════════════════════════════════════════════════════════════
+1. Abre el archivo .env en la raíz del proyecto
+2. Añade tu PINATA_JWT (obtenerlo de: https://app.pinata.cloud/developers/keys)
+3. Guarda el archivo
+
+   Contenido del .env:
+   ┌────────────────────────────────────────────────────────┐
+   │ PINATA_JWT=tu_jwt_aqui                                 │
+   │ GATEWAY_URL=https://pinata-server.pinata-server.work... │
+   └────────────────────────────────────────────────────────┘
+
+
+🏃 PASO 2: INICIAR EL SERVIDOR
+═══════════════════════════════════════════════════════════════
+Ejecuta en la terminal:
+
+   npm run start:dev
+
+Espera a ver el mensaje:
+   "Application is running on: http://localhost:3000"
+
+
+✅ PASO 3: PROBAR LA INTEGRACIÓN
+═══════════════════════════════════════════════════════════════
+Abre una NUEVA terminal y ejecuta:
+
+   curl -X POST http://localhost:3000/pinata/upload-json \
+     -H "Content-Type: application/json" \
+     -d '{"data": {"test": true, "proyecto": "Reforesta"}, "filename": "test.json"}'
+
+Si ves una respuesta con "success": true, ¡está funcionando! 🎉
+
+
+📚 PASO 4: EXPLORAR LA DOCUMENTACIÓN
+═══════════════════════════════════════════════════════════════
+- PINATA_USAGE.md          → Guía completa de uso
+- PRUEBAS_RAPIDAS.md       → Ejemplos con cURL y Postman
+- ESTRUCTURA_PROYECTO.md   → Arquitectura del proyecto
+- src/pinata/README.md     → Documentación del módulo
+
+
+🎯 ENDPOINTS DISPONIBLES
+═══════════════════════════════════════════════════════════════
+POST   /pinata/upload         → Subir archivo (multipart)
+POST   /pinata/upload-json    → Subir JSON
+GET    /pinata/file/:cid      → Obtener archivo por CID
+GET    /pinata/json/:cid      → Obtener JSON por CID
+GET    /pinata/files          → Listar todos los archivos
+DELETE /pinata/file/:fileId   → Eliminar archivo
+
+
+💡 EJEMPLO DE USO EN TU CÓDIGO
+═══════════════════════════════════════════════════════════════
+import { Injectable } from '@nestjs/common';
+import { PinataService } from './pinata/pinata.service';
+
+@Injectable()
+export class MiServicio {
+  constructor(private pinataService: PinataService) {}
+
+  async subirDatos() {
+    const resultado = await this.pinataService.uploadJson(
+      { nombre: "Proyecto", data: "..." },
+      'archivo.json'
+    );
+    console.log('CID:', resultado.data.cid);
+    return resultado;
+  }
+}
+
+
+🆘 SOLUCIÓN DE PROBLEMAS
+═══════════════════════════════════════════════════════════════
+❌ "PINATA_JWT no está configurado"
+   → Verifica que .env tiene el JWT correcto
+
+❌ "Cannot POST /pinata/upload-json"
+   → Asegúrate de que el servidor esté corriendo
+
+❌ Error 500
+   → Verifica que tu PINATA_JWT sea válido
+   → Revisa los logs del servidor
+
+
+📂 ESTRUCTURA DEL PROYECTO
+═══════════════════════════════════════════════════════════════
+src/pinata/
+├── pinata.module.ts          → Módulo de NestJS
+├── pinata.controller.ts      → Endpoints REST
+├── pinata.service.ts         → Lógica de negocio
+├── dto/pinata.dto.ts         → Tipos TypeScript
+└── examples/                 → Ejemplos de uso
+
+
+🎉 ¡LISTO PARA COMENZAR!
+═══════════════════════════════════════════════════════════════
+1. ✅ Dependencias instaladas
+2. ✅ Módulo configurado
+3. ✅ Endpoints listos
+4. ⚠️  Necesitas añadir tu PINATA_JWT en .env
+5. ✅ Documentación completa
+
+
+🔗 RECURSOS
+═══════════════════════════════════════════════════════════════
+Dashboard de Pinata:  https://app.pinata.cloud
+API Keys:             https://app.pinata.cloud/developers/keys
+Documentación:        https://docs.pinata.cloud
+
+
+═══════════════════════════════════════════════════════════════
+                    ¡Buena suerte! 🚀
+═══════════════════════════════════════════════════════════════
