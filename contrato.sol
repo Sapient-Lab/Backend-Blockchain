@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^5.5.0
+// Compatible with OpenZeppelin Contracts ^5.6.0
 pragma solidity ^0.8.27;
 
-import {ERC721} from "@openzeppelin/contracts@5.5.0/token/ERC721/ERC721.sol";
-import {ERC721Burnable} from "@openzeppelin/contracts@5.5.0/token/ERC721/extensions/ERC721Burnable.sol";
-import {ERC721Pausable} from "@openzeppelin/contracts@5.5.0/token/ERC721/extensions/ERC721Pausable.sol";
-import {ERC721URIStorage} from "@openzeppelin/contracts@5.5.0/token/ERC721/extensions/ERC721URIStorage.sol";
-import {Ownable} from "@openzeppelin/contracts@5.5.0/access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts@5.6.0/access/Ownable.sol";
+import {ERC721} from "@openzeppelin/contracts@5.6.0/token/ERC721/ERC721.sol";
+import {ERC721Burnable} from "@openzeppelin/contracts@5.6.0/token/ERC721/extensions/ERC721Burnable.sol";
+import {ERC721Pausable} from "@openzeppelin/contracts@5.6.0/token/ERC721/extensions/ERC721Pausable.sol";
+import {ERC721URIStorage} from "@openzeppelin/contracts@5.6.0/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract TokenJham is ERC721, ERC721URIStorage, ERC721Pausable, Ownable, ERC721Burnable {
+contract SapientLab is ERC721, ERC721URIStorage, ERC721Pausable, Ownable, ERC721Burnable {
     uint256 private _nextTokenId;
+
     constructor(address initialOwner)
-        ERC721("TokenJham", "MTj")
+        ERC721("SapientLab", "SPL")
         Ownable(initialOwner)
     {}
 
@@ -23,9 +24,10 @@ contract TokenJham is ERC721, ERC721URIStorage, ERC721Pausable, Ownable, ERC721B
         _unpause();
     }
 
-     function safeMint(address to, string memory uri)
+    function safeMint(address to, string memory uri)
         public
-        onlyOwner returns (uint256)
+        onlyOwner
+        returns (uint256)
     {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
