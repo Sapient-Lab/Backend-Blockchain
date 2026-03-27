@@ -12,10 +12,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PinataService } from './pinata.service';
+import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Controller('pinata')
 export class PinataController {
-  constructor(private readonly pinataService: PinataService) {}
+  constructor(
+    private readonly pinataService: PinataService,
+    private readonly blockchainService: BlockchainService,
+  ) {}
 
   /**
    * Endpoint para subir un archivo
@@ -43,7 +47,7 @@ export class PinataController {
   }
 
   /**
-   * Endpoint para subir un JSON
+   * Endpoint para subir un JSON y mintear NFT automáticamente
    * POST /pinata/upload-json
    * Body: { data: any, filename?: string }
    */
@@ -59,13 +63,54 @@ export class PinataController {
     }
 
     try {
-      return await this.pinataService.uploadJson(
+      // 1️⃣ Subir JSON a IPFS via Pinata
+      const ipfsResult = await this.pinataService.uploadJson(
         body.data,
         body.filename || 'data.json',
       );
+
+      // 2️⃣ Mintear NFT automáticamente usando el public_url como URI
+      const mintResult = await this.blockchainService.safeMint(
+        ipfsResult.public_url,
+      );
+
+      // 3️⃣ Construir URL del token en el explorador de Somnia
+      const contractAddress = '0xE16EcfeE6067B4918AF3eAF09Dd134FFdaE92D4D';
+      const explorerUrl = `https://shannon-explorer.somnia.network/token/${contractAddress}`;
+      const tokenUrl =
+        mintResult.tokenId !== 'N/A'
+          ? `https://shannon-explorer.somnia.network/token/${contractAddress}/instance/${mintResult.tokenId}`
+          : explorerUrl;
+
+      return {
+        // Datos de IPFS
+        ipfs: {
+          cid: ipfsResult.cid,
+          public_url: ipfsResult.public_url,
+          gateway_url: ipfsResult.gateway_url,
+          ipfs_url: ipfsResult.ipfs_url,
+        },
+        // Datos del NFT minteado
+        nft: {
+          tokenId: mintResult.tokenId,
+          transactionHash: mintResult.transactionHash,
+          blockNumber: mintResult.blockNumber,
+          gasUsed: mintResult.gasUsed,
+          mintedTo: mintResult.to,
+          uri: mintResult.uri,
+        },
+        // URLs del explorador
+        explorer: {
+          contractUrl: explorerUrl,
+          tokenUrl,
+          transactionUrl: `https://shannon-explorer.somnia.network/tx/${mintResult.transactionHash}`,
+        },
+        success: true,
+        message: 'JSON subido a IPFS y NFT minteado exitosamente en Somnia Network',
+      };
     } catch (error) {
       throw new HttpException(
-        error.message || 'Error al subir el JSON',
+        error.message || 'Error al subir el JSON o mintear el NFT',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -151,6 +196,48 @@ export class PinataController {
     } catch (error) {
       throw new HttpException(
         error.message || 'Error al eliminar el archivo',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Mintea un NFT en el contrato usando wallet auto-custodia.
+   * POST /pinata/mint-nft
+   * Body: { uri: string }  ← usa el public_url devuelto por upload-json
+   */
+  @Post('mint-nft')
+  async mintNft(@Body() body: { uri: string }) {
+    if (!body.uri) {
+      throw new HttpException(
+        'Se requiere el campo "uri" en el body (usa el public_url de upload-json)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      return await this.blockchainService.safeMint(body.uri);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Error al mintear el NFT',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Retorna la dirección y balance de la wallet auto-custodia.
+   * GET /pinata/wallet
+   */
+  @Get('wallet')
+  async getWallet() {
+    try {
+      const address = this.blockchainService.getWalletAddress();
+      const balance = await this.blockchainService.getWalletBalance();
+      return { address, ...balance };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Error al obtener información de la wallet',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
