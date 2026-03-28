@@ -536,5 +536,5 @@ El JSON subido es **inmutable** y tiene un CID único que nunca cambia.
 ---
 
 **Versión del documento:** 1.0  
-**Fecha:** Enero 2026  
+**Fecha:** Enero 2026  hackaton
 **Autor:** Sistema de Documentación Automática
