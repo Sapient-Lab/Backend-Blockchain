@@ -47,26 +47,34 @@ export class PinataController {
   }
 
   /**
-   * Endpoint para subir un JSON y mintear NFT automáticamente
+   * Endpoint para subir un JSON NFT y mintear automáticamente
    * POST /pinata/upload-json
-   * Body: { data: any, filename?: string }
+   * Body: { name, description, attributes: [{ trait_type, value }] }
    */
   @Post('upload-json')
   async uploadJson(
-    @Body() body: { data: any; filename?: string },
+    @Body() body: { name: string; description: string; attributes?: { trait_type: string; value: string }[] },
   ) {
-    if (!body.data) {
+    if (!body.name || !body.description) {
       throw new HttpException(
-        'Se requiere el campo "data" en el body',
+        'Se requieren los campos "name" y "description" en el body',
         HttpStatus.BAD_REQUEST,
       );
     }
 
+    // Estructura NFT con imagen siempre predefinida
+    const nftMetadata = {
+      name: body.name,
+      description: body.description,
+      image: 'https://moccasin-magnetic-gopher-766.mypinata.cloud/ipfs/bafybeiagdk4wzi4pz6sbzytf6w2b5kxj6idyex5lsuzkfcu7lngo6rinjm',
+      attributes: body.attributes || [],
+    };
+
     try {
       // 1️⃣ Subir JSON a IPFS via Pinata
       const ipfsResult = await this.pinataService.uploadJson(
-        body.data,
-        body.filename || 'data.json',
+        nftMetadata,
+        `${body.name.replace(/\s+/g, '-')}.json`,
       );
 
       // 2️⃣ Mintear NFT automáticamente usando el public_url como URI
