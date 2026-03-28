@@ -11,7 +11,11 @@ async function bootstrap() {
   
   // Habilitar CORS
   app.enableCors({
-    origin: '*',
+    origin: [
+      'https://sapientlab.vercel.app',
+      'http://localhost:3000',
+      'https://sapient-lab-api-fkadhxgthve3hycv.eastus-01.azurewebsites.net',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
