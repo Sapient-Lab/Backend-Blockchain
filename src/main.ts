@@ -14,6 +14,7 @@ async function bootstrap() {
     origin: [
       'https://sapientlab.vercel.app',
       'http://localhost:3000',
+      'http://localhost:5173',
       'https://sapient-lab-api-fkadhxgthve3hycv.eastus-01.azurewebsites.net',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
