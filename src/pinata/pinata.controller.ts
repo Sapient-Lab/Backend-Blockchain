@@ -91,6 +91,10 @@ export class PinataController {
           : explorerUrl;
 
       return {
+        success: true,
+        message: 'JSON subido a IPFS y NFT minteado exitosamente en Somnia Network',
+        // URL directa del token en el explorador
+        tokenUrl,
         // Datos de IPFS
         ipfs: {
           cid: ipfsResult.cid,
@@ -113,8 +117,6 @@ export class PinataController {
           tokenUrl,
           transactionUrl: `https://shannon-explorer.somnia.network/tx/${mintResult.transactionHash}`,
         },
-        success: true,
-        message: 'JSON subido a IPFS y NFT minteado exitosamente en Somnia Network',
       };
     } catch (error) {
       throw new HttpException(
